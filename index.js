@@ -40,7 +40,20 @@ app.get("/", (request, respouns) => {
   respouns.send("Hello From the /");
 });
 
-app.post("/api/user", async (req, res) => {
+app.post("/api/login", async (req, res) => {
+  try {
+    const { email, password } = req.body;
+
+    const user = await User.findOne({ email });
+    if (!user || password !== user.password) {
+      return res.status(400).json({ message: "Incorrect password or email" });
+    }
+    res.json({ message: "login successful", email: email });
+  } catch (error) {
+    res.status(500).json({ message: "Server error", error: error.message });
+  }
+});
+app.post("/api/signup", async (req, res) => {
   const { name, email, password } = req.body; // Use Destructuring
 
   if (!name || !email || !password || password.length < 8) {
