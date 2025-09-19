@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth.routes");
-const allUsers = require("./routes/user.routes");
+const user = require("./routes/user.routes");
 
 const app = express();
 
@@ -30,7 +30,7 @@ app.use(express.json());
 ----- For Example: Any request starting with "/api/auth" will be forwarded to `authRoutes`.
 ----- This allows modular organization of routes (e.g., authentication routes).
 */
-app.use("/api", allUsers);
+app.use("/api", user);
 app.use("/api/auth", authRoutes);
 
 /*
