@@ -37,4 +37,41 @@ const deleteUser = async (req, res) => {
   }
 };
 
-module.exports = { allUsers, deleteUser, findUser };
+const updateUser = async (req, res) => {
+  const { id } = req.params;
+  const { name, email, password } = req.body;
+
+  if (!name || !email || !password || password.length < 8) {
+    return res.status(400).json({ error: "Invalid Input" });
+  }
+
+  try {
+    const existingUser = await User.findOne({ email, _id: { $ne: id } });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
+
+    const updatedUser = await User.findByIdAndUpdate(
+      id,
+      { name, email, password },
+      { new: true, runValidators: true }
+    );
+
+    if (!updatedUser) {
+      return res.status(404).json({ error: "User not found" });
+    }
+
+    res.status(200).json({
+      _id: updatedUser._id,
+      name: updatedUser.name,
+      email: updatedUser.email,
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ error: "Email already exists" });
+    }
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+module.exports = { allUsers, deleteUser, findUser, updateUser };
