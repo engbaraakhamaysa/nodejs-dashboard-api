@@ -74,4 +74,31 @@ const updateUser = async (req, res) => {
   }
 };
 
-module.exports = { allUsers, deleteUser, findUser, updateUser };
+const createUser = async (req, res) => {
+  const { name, email, password } = req.body;
+  if (!name || !email || !password || password.length < 8) {
+    return res.status(400).json({ error: "Invalid Input" });
+  }
+
+  try {
+    const existingUser = await User.findOne({ email });
+    if (existingUser) {
+      return res.status(400).json({ error: "Email Already exists" });
+    }
+
+    const newUser = new User({ name, email, password });
+    await newUser.save();
+    res.status(200).json({
+      _id: newUser._id,
+      name: newUser.name,
+      email: newUser.email,
+    });
+  } catch (error) {
+    if (error.code === 11000) {
+      return res.status(400).json({ error: "Email already axists" });
+    }
+    res.status(500).json({ error: "Server error" });
+  }
+};
+
+module.exports = { allUsers, deleteUser, findUser, updateUser, createUser };
