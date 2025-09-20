@@ -30,7 +30,7 @@ app.use(express.json());
 ----- For Example: Any request starting with "/api/auth" will be forwarded to `authRoutes`.
 ----- This allows modular organization of routes (e.g., authentication routes).
 */
-app.use("/api", user);
+app.use("/api/user", user);
 app.use("/api/auth", authRoutes);
 
 /*
