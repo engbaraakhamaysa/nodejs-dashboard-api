@@ -2,12 +2,7 @@ const { model } = require("mongoose");
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken");
 
-const {
-  JWT_SECRET,
-  JWT_REFRESH_SECRET,
-  JWT_EXPIRES,
-  JWT_REFRESH_EXPIRES,
-} = require("../config/token");
+const { JWT_SECRET, JWT_EXPIRES } = require("../config/token");
 
 const generateAccessToken = (userId) => {
   return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
@@ -31,10 +26,14 @@ const signup = async (req, res) => {
     const accessToken = generateAccessToken(newUser._id);
 
     res.status(200).json({
-      _id: newUser._id,
-      name: newUser.name,
-      email: newUser.email,
-      accessToken,
+      user: {
+        _id: newUser._id,
+        name: newUser.name,
+        email: newUser.email,
+      },
+      token: {
+        accessToken,
+      },
     });
   } catch (error) {
     if (error.code === 11000) {
@@ -54,10 +53,16 @@ const login = async (req, res) => {
     }
 
     const accessToken = generateAccessToken(user._id);
-    res.json({
-      message: "Login Successful",
-      email: user.email,
-      accessToken,
+
+    res.status(200).json({
+      user: {
+        _id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+      token: {
+        accessToken,
+      },
     });
   } catch (error) {
     res.status(500).json({ message: "Sever error", error: error.message });
