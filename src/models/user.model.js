@@ -18,6 +18,7 @@ const userSchema = new Schema({
     required: true,
     minlength: 8, // Minimum number of characters
   },
+
   createdAt: {
     type: Date,
     default: Date.now,

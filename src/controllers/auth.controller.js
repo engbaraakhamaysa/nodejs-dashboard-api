@@ -1,5 +1,7 @@
 const { model } = require("mongoose");
 const User = require("../models/user.model");
+const jwt = require("jsonwebtoken");
+
 const {
   JWT_SECRET,
   JWT_REFRESH_SECRET,
@@ -7,14 +9,8 @@ const {
   JWT_REFRESH_EXPIRES,
 } = require("../config/token");
 
-const generateTokens = (userId) => {
-  const accessToken = jwt.sign({ id: userId }, JWT_SECRET, {
-    expiresIn: JWT_EXPIRES,
-  });
-  const refreshToken = jwt.sign({ id: userId }, JWT_REFRESH_SECRET, {
-    expiresIn: JWT_REFRESH_EXPIRES,
-  });
-  return { accessToken, refreshToken };
+const generateAccessToken = (userId) => {
+  return jwt.sign({ id: userId }, JWT_SECRET, { expiresIn: JWT_EXPIRES });
 };
 //Signup Controller
 const signup = async (req, res) => {
@@ -30,14 +26,15 @@ const signup = async (req, res) => {
     }
 
     const newUser = new User({ name, email, password });
+
     await newUser.save();
-    const { accessToken, refreshToken } = generateTokens(newUser._id);
+    const accessToken = generateAccessToken(newUser._id);
+
     res.status(200).json({
       _id: newUser._id,
       name: newUser.name,
       email: newUser.email,
       accessToken,
-      refreshToken,
     });
   } catch (error) {
     if (error.code === 11000) {
@@ -55,13 +52,12 @@ const login = async (req, res) => {
     if (!user || password !== user.password) {
       return res.status(400).json({ message: "Incorrect email or password" });
     }
-    const { accessToken, refreshToken } = generateTokens(user._id);
 
+    const accessToken = generateAccessToken(user._id);
     res.json({
       message: "Login Successful",
       email: user.email,
       accessToken,
-      refreshToken,
     });
   } catch (error) {
     res.status(500).json({ message: "Sever error", error: error.message });
