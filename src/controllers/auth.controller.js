@@ -22,6 +22,8 @@ const signup = async (req, res) => {
     await newUser.save();
 
     const accessToken = generateAccessToken(newUser._id);
+    newUser.token = accessToken;
+    await newUser.save();
 
     res.status(200).json({
       user: { _id: newUser._id, name: newUser.name, email: newUser.email },
@@ -43,6 +45,8 @@ const login = async (req, res) => {
     }
 
     const accessToken = generateAccessToken(user._id);
+    user.token = accessToken;
+    await user.save();
 
     res.status(200).json({
       user: { _id: user._id, name: user.name, email: user.email },
@@ -69,6 +73,8 @@ const refreshToken = async (req, res) => {
     if (!user) return res.status(404).json({ message: "User not found" });
 
     const newAccessToken = generateAccessToken(user._id);
+    user.token = newAccessToken;
+    await user.save();
 
     res.json({
       user: { _id: user._id, name: user.name, email: user.email },
@@ -80,7 +86,7 @@ const refreshToken = async (req, res) => {
   }
 };
 
-const logout = (req, res) => {
+const logout = async (req, res) => {
   const authHeader = req.headers.authorization;
 
   if (!authHeader) {
@@ -91,6 +97,11 @@ const logout = (req, res) => {
 
   try {
     const payload = jwt.verify(token, JWT_SECRET);
+    const user = await User.findById(payload.id);
+    if (user) {
+      user.token = null;
+      await user.save();
+    }
     res.clearCookie("Bearer", {
       httpOnly: true,
       sameSite: "Strict",
