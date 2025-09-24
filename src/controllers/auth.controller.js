@@ -80,4 +80,30 @@ const refreshToken = async (req, res) => {
   }
 };
 
-module.exports = { signup, login, refreshToken };
+const logout = (req, res) => {
+  const authHeader = req.headers.authorization;
+
+  if (!authHeader) {
+    return res.status(401).json({ message: "No token provided" });
+  }
+
+  const token = authHeader.split(" ")[1]; // Bearer <token>
+
+  try {
+    const payload = jwt.verify(token, JWT_SECRET);
+    res.clearCookie("Bearer", {
+      httpOnly: true,
+      sameSite: "Strict",
+      path: "/",
+    });
+
+    res
+      .status(200)
+      .json({ message: "Logged out successfully", userId: payload.id });
+  } catch (err) {
+    console.error("Logout error:", err.message);
+    res.status(403).json({ message: "Invalid token" });
+  }
+};
+
+module.exports = { signup, login, refreshToken, logout };
