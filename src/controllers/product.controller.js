@@ -67,4 +67,47 @@ const deleteProduct = async (req, res) => {
   }
 };
 
-module.exports = { createProduct, getAllProducts, deleteProduct };
+//Update Product Controller
+const updateProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    let imageUrl = product.image;
+    if (req.file) {
+      if (product.image) {
+        const oldFileName = product.image.split("/").pop();
+        const oldPath = path.join(__dirname, "../images", oldFileName);
+        if (fs.existsSync(oldPath)) {
+          fs.unlinkSync(oldPath);
+        }
+      }
+
+      imageUrl = `${req.protocol}://${req.get("host")}/images/${
+        req.file.filename
+      }`;
+    }
+
+    product.title = req.body.title || product.title;
+    product.description = req.body.description || product.description;
+    product.image = imageUrl;
+
+    await product.save();
+
+    res.status(200).json({ message: "Product Updated Successfully", product });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = {
+  createProduct,
+  getAllProducts,
+  deleteProduct,
+  updateProduct,
+};
