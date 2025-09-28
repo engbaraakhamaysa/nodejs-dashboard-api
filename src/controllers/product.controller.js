@@ -1,6 +1,7 @@
 const Product = require("../models/product.model");
+const fs = require("fs");
+const path = require("path");
 
-//Create New Product
 // Create New Product
 const createProduct = async (req, res) => {
   try {
@@ -9,7 +10,6 @@ const createProduct = async (req, res) => {
       return res.status(400).json({ message: "Title is required" });
     }
 
-    // ابني رابط الصورة كامل
     const imageUrl = req.file
       ? `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
       : null;
@@ -40,4 +40,31 @@ const getAllProducts = async (req, res) => {
   }
 };
 
-module.exports = { createProduct, getAllProducts };
+//Delete Producr Controller
+const deleteProduct = async (req, res) => {
+  try {
+    const productId = req.params.id;
+
+    const product = await Product.findById(productId);
+    if (!product) {
+      return res.status(404).json({ message: "Product not found" });
+    }
+
+    if (product.image) {
+      const imageFileName = product.image.split("/").pop();
+      const imagePath = path.join(__dirname, "../images", imageFileName);
+      if (fs.existsSync(imagePath)) {
+        fs.unlinkSync(imagePath);
+      }
+    }
+
+    await Product.findByIdAndDelete(productId);
+
+    res.status(200).json({ message: "Product Deleted Successfully" });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { createProduct, getAllProducts, deleteProduct };

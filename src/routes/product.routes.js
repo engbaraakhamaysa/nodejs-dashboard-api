@@ -5,6 +5,7 @@ const path = require("path");
 const {
   createProduct,
   getAllProducts,
+  deleteProduct,
 } = require("../controllers/product.controller");
 
 //Multer Save Images
@@ -21,5 +22,6 @@ const upload = multer({ storage });
 
 router.post("/create", upload.single("image"), createProduct);
 router.get("/allproducts", getAllProducts);
+router.delete("/deleteproduct/:id", deleteProduct);
 
 module.exports = router;
