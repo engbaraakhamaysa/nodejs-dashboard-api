@@ -1,17 +1,23 @@
 const Product = require("../models/product.model");
 
 //Create New Product
+// Create New Product
 const createProduct = async (req, res) => {
   try {
     const { title, description } = req.body;
-    if (!title) return res.status(400).json({ message: "Title is required" });
+    if (!title) {
+      return res.status(400).json({ message: "Title is required" });
+    }
 
-    const image = req.file ? req.file.filename : null;
+    // ابني رابط الصورة كامل
+    const imageUrl = req.file
+      ? `${req.protocol}://${req.get("host")}/images/${req.file.filename}`
+      : null;
 
     const product = new Product({
       title,
       description,
-      image,
+      image: imageUrl,
     });
 
     await product.save();
@@ -23,4 +29,15 @@ const createProduct = async (req, res) => {
   }
 };
 
-module.exports = { createProduct };
+//Get All Products
+const getAllProducts = async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.status(200).json(products);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ message: "Server error" });
+  }
+};
+
+module.exports = { createProduct, getAllProducts };

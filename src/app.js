@@ -4,6 +4,8 @@ const connectDB = require("./config/db");
 const authRoutes = require("./routes/auth.routes");
 const user = require("./routes/user.routes");
 const product = require("./routes/product.routes");
+const path = require("path");
+
 const app = express();
 
 connectDB();
@@ -20,6 +22,7 @@ connectDB();
 
 app.use(cors());
 app.use(express.json());
+app.use("/images", express.static(path.join(__dirname, "images")));
 
 /*
 //-------------------------------------------------------------
