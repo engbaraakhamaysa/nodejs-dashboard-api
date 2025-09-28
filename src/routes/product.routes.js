@@ -7,6 +7,7 @@ const {
   getAllProducts,
   deleteProduct,
   updateProduct,
+  getProductById,
 } = require("../controllers/product.controller");
 
 //Multer Save Images
@@ -25,5 +26,6 @@ router.post("/create", upload.single("image"), createProduct);
 router.get("/allproducts", getAllProducts);
 router.delete("/deleteproduct/:id", deleteProduct);
 router.post("/update/:id", upload.single("image"), updateProduct);
+router.get("/getbyid/:id", getProductById);
 
 module.exports = router;
