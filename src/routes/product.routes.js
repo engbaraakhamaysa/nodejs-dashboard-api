@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const multer = require("multer");
 const path = require("path");
+const auth = require("../middleware/auth.middleware");
 const {
   createProduct,
   getAllProducts,
@@ -52,10 +53,10 @@ const storage = multer.diskStorage({
 // "image" = The name of the file field sent from the frontend (in the form or FormData).
 const upload = multer({ storage });
 
-router.post("/create", upload.single("image"), createProduct);
-router.get("/allproducts", getAllProducts);
-router.delete("/deleteproduct/:id", deleteProduct);
-router.post("/update/:id", upload.single("image"), updateProduct);
-router.get("/getbyid/:id", getProductById);
+router.post("/create", auth, upload.single("image"), createProduct);
+router.get("/allproducts", auth, getAllProducts);
+router.delete("/deleteproduct/:id", auth, deleteProduct);
+router.post("/update/:id", auth, upload.single("image"), updateProduct);
+router.get("/getbyid/:id", auth, getProductById);
 
 module.exports = router;
